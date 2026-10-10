@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Network Attack Detector</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #0d1117;
+            color: #e6edf3;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #161b22;
+            padding: 30px;
+            border-radius: 12px;
+            width: 350px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.6);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        label {
+            font-size: 14px;
+            color: #9da7b3;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border: none;
+            border-radius: 6px;
+            background-color: #0d1117;
+            color: #e6edf3;
+            outline: none;
+            border: 1px solid #30363d;
+        }
+
+        input:focus {
+            border: 1px solid #58a6ff;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #238636;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background-color: #2ea043;
+        }
+
+        #result {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .normal { color: #2ea043; }
+        .attack { color: #f85149; }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>Network Attack Detector</h2>
+
+    <label>Frame Time</label>
+    <input id="time" type="number" step="any">
+
+    <label>Destination Port</label>
+    <input id="port" type="number">
+
+    <label>Frame Length</label>
+    <input id="length" type="number">
+
+    <button onclick="predict()">Analyze Traffic</button>
+
+    <div id="result"></div>
+</div>
+
+<script>
+async function predict() {
+    let time = parseFloat(document.getElementById("time").value);
+    let port = parseFloat(document.getElementById("port").value);
+    let length = parseFloat(document.getElementById("length").value);
+
+    let response = await fetch("/predict", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            features: [time, port, length]
+        })
+    });
+
+    let data = await response.json();
+
+    let resultDiv = document.getElementById("result");
+
+    resultDiv.innerText = "Prediction: " + data.label;
+
+    if (data.label === "Normal") {
+        resultDiv.className = "normal";
+    } else {
+        resultDiv.className = "attack";
+    }
+}
+</script>
+
+</body>
+</html>
